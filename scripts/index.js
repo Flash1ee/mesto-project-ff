@@ -1,6 +1,6 @@
-function addCardsToPage() {
-    let cardList = document.querySelector('.places__list');
+const cardList = document.querySelector('.places__list');
 
+function addCardsToPage() {
     initialCards.forEach(element => {
         const card = newCard(element.name, element.link, deleteCard);
         cardList.append(card);
@@ -8,16 +8,16 @@ function addCardsToPage() {
 }
 
 function newCard(title, link, rmFunc) {
-    let card = document.querySelector('#card-template').cloneNode(true).content;
+    const card = document.querySelector('#card-template').content.
+        querySelector('.card').cloneNode(true);
 
     card.querySelector('.card__image').src = link;
     card.querySelector('.card__title').textContent = title;
 
     const rmCardButton = card.querySelector('.card__delete-button');
 
-    rmCardButton.addEventListener('click', function (event) { 
-        const eventTarget = event.target;
-        rmFunc(eventTarget.parentElement);
+    rmCardButton.addEventListener('click', () => { 
+        rmFunc(card);
     }); 
 
     return card;
