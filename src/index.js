@@ -1,3 +1,6 @@
+import '../pages/index.css';
+import { initialCards } from './cards';
+
 const cardList = document.querySelector('.places__list');
 
 function addCardsToPage() {
@@ -10,6 +13,7 @@ function addCardsToPage() {
 function newCard(title, link, rmFunc) {
     const card = document.querySelector('#card-template').content.
         querySelector('.card').cloneNode(true);
+        
 
     card.querySelector('.card__image').src = link;
     card.querySelector('.card__title').textContent = title;
