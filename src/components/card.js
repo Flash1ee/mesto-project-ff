@@ -1,38 +1,27 @@
-function newCard(
-	title,
-	link,
-	rmFunc,
-	likeFunc,
-	popupCardFunc,
-	openPopupFunc,
-	closePopupByClickFunc, 
-	closePopupByEscListererFunc,
-) {
+function newCard(title, link, config) {
 	const card = document
 		.querySelector("#card-template")
 		.content.querySelector(".card")
 		.cloneNode(true);
 
-	card.querySelector(".card__image").src = link;
+	const cardImage = card.querySelector(".card__image");
+	cardImage.src = link;
+	cardImage.alt = title;
 	card.querySelector(".card__title").textContent = title;
 
 	const rmCardButton = card.querySelector(".card__delete-button");
 
-	rmCardButton.addEventListener("click", (evt) => {
-		evt.stopPropagation();
-		rmFunc(card);
+	rmCardButton.addEventListener("click", () => {
+		config.rmFunc(card);
 	});
 
 	const likeButton = card.querySelector(".card__like-button");
-	likeButton.addEventListener("click", (evt) => {
-		evt.stopPropagation();
-
-		likeFunc(card);
+	likeButton.addEventListener("click", () => {
+		config.likeFunc(card);
 	});
 
-	card.addEventListener("click", () => {
-		popupCardFunc(link, title, openPopupFunc, closePopupByClickFunc);
-		closePopupByEscListererFunc();
+	cardImage.addEventListener("click", () => {
+		config.addImageFunc(link, title, config.openPopupFunc);
 	});
 
 	return card;
@@ -44,34 +33,7 @@ function deleteCard(card) {
 
 function likeCard(card) {
 	let likeImg = card.querySelector(".card__like-button");
-	if (likeImg === null) {
-		likeImg = card.querySelector(".card__like-button_is-active");
-		likeImg.classList.replace(
-			"card__like-button_is-active",
-			"card__like-button"
-		);
-	} else {
-		likeImg.classList.replace(
-			"card__like-button",
-			"card__like-button_is-active"
-		);
-	}
+	likeImg.classList.toggle("card__like-button_is-active");
 }
 
-function popupCard(link, title, openPopupFunc, closePopupFunc) {
-	const popup = document.querySelector(".popup_type_image");
-	const popupImg = popup.querySelector(".popup__image");
-	const popupCaption = popup.querySelector(".popup__caption");
-
-	popupImg.src = link;
-	popupCaption.textContent = title;
-
-	const closePopupBtn = popup.querySelector(".popup__close");
-	closePopupBtn.addEventListener("click", () => {
-		closePopupFunc(popup);
-	});
-
-	openPopupFunc(popup);
-}
-
-export { newCard, deleteCard, likeCard, popupCard };
+export { newCard, deleteCard, likeCard };

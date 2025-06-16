@@ -1,39 +1,48 @@
 import "../pages/index.css";
 import { initialCards } from "./cards";
-import {
-	openPopup,
-	closePopup,
-	popupFindAndClose,
-	addCloseByEscapeListener,
-} from "./modal";
-import { newCard, deleteCard, likeCard, popupCard } from "./components/card";
+import { openPopup, closeOpenPopup } from "./modal";
+import { newCard, deleteCard, likeCard } from "./components/card";
 
-const cardList = document.querySelector(".places__list");
+// Попап
+const popupCloseSelector = ".popup__close";
+const closePopupBtn = document.querySelector(popupCloseSelector);
+const popup = document.querySelector(".popup_type_image");
+const popupImg = popup.querySelector(".popup__image");
+const popupCaption = popup.querySelector(".popup__caption");
 
 // Профиль
 const profileTitleSelector = ".profile__title";
 const profileDescriptionSelector = ".profile__description";
-const editProfileFormName = "edit-profile";
+const editProfileForm = document.forms["edit-profile"];
+const profileAddButton = document.querySelector(".profile__add-button");
+const profileEditButton = document.querySelector(".profile__edit-button");
+const popupProfileEdit = document.querySelector(".popup_type_edit");
 
 // Карточка
-const addCardFormName = "new-place";
+const cardForm = document.forms["new-place"];
+const cardList = document.querySelector(".places__list");
+const popupAddNewCard = document.querySelector(".popup_type_new-card");
 
-// Попап
-const popupCloseSelector = ".popup__close";
+
+function handleImageClick(link, title, openPopupFunc) {
+	popupImg.src = link;
+	popupImg.alt = title;
+	popupCaption.textContent = title;
+
+	openPopupFunc(popup);
+}
+
+const config = {
+	rmFunc: deleteCard,
+	likeFunc: likeCard,
+	addImageFunc: handleImageClick,
+	openPopupFunc: openPopup,
+};
 
 // Добавление дефолтных карточек
 function addCardsToPage() {
 	initialCards.forEach((element) => {
-		const card = newCard(
-			element.name,
-			element.link,
-			deleteCard,
-			likeCard,
-			popupCard,
-			openPopup,
-			closePopup,
-			addCloseByEscapeListener
-		);
+		const card = newCard(element.name, element.link, config);
 		cardList.append(card);
 	});
 }
@@ -42,46 +51,21 @@ function addCardsToPage() {
 function handleNewCardFormSubmit(evt) {
 	evt.preventDefault();
 
-	const cardForm = document.forms[addCardFormName];
-
 	const placeTitle = cardForm["place-name"].value;
 	const link = cardForm["link"].value;
-	cardList.prepend(
-		newCard(
-			placeTitle,
-			link,
-			deleteCard,
-			likeCard,
-			popupCard,
-			openPopup,
-			closePopup,
-			addCloseByEscapeListener
-		)
-	);
+	cardList.prepend(newCard(placeTitle, link, config));
 
 	cardForm.reset();
-	popupFindAndClose();
+	closeOpenPopup();
 }
 
 // Редактирование профиля
 function profileEditButtonHandle() {
-	const profileEditButton = document.querySelector(".profile__edit-button");
-
 	profileEditButton.addEventListener("click", () => {
-		const editForm = document.forms[editProfileFormName];
-		profileEditPreFill(editForm);
-		editForm.addEventListener("submit", handleProfileFormSubmit);
+		profileEditPreFill(editProfileForm);
+		editProfileForm.addEventListener("submit", handleProfileFormSubmit);
 
-		const popupProfileEdit = document.querySelector(".popup_type_edit");
 		openPopup(popupProfileEdit);
-
-		const popupCloseBtn =
-			popupProfileEdit.querySelector(popupCloseSelector);
-		popupCloseBtn.addEventListener("click", () => {
-			closePopup(popupProfileEdit);
-		});
-
-		addCloseByEscapeListener();
 	});
 }
 
@@ -99,41 +83,32 @@ function profileEditPreFill(editForm) {
 function handleProfileFormSubmit(evt) {
 	evt.preventDefault();
 
-	const profileForm = document.forms[editProfileFormName];
-
-	const name = profileForm.name.value;
-	const description = profileForm.description.value;
+	const name = editProfileForm.name.value;
+	const description = editProfileForm.description.value;
 
 	document.querySelector(profileTitleSelector).textContent = name;
 	document.querySelector(profileDescriptionSelector).textContent =
 		description;
 
-	popupFindAndClose();
+	closeOpenPopup();
 }
 
 // Добавление новой карточки
 function profileAddCardButtonHandle() {
-	const profileAddButton = document.querySelector(".profile__add-button");
-
 	profileAddButton.addEventListener("click", () => {
-		const popupAddNewCard = document.querySelector(
-			".popup_type_new-card"
-		);
 		openPopup(popupAddNewCard);
 
-		const cardForm = document.forms[addCardFormName];
 		cardForm.addEventListener("submit", handleNewCardFormSubmit);
+	});
+}
 
-		const popupCloseBtn =
-			popupAddNewCard.querySelector(popupCloseSelector);
-		popupCloseBtn.addEventListener("click", () => {
-			closePopup(popupAddNewCard);
-		});
-
-		addCloseByEscapeListener();
+function popupCloseHandler() {
+	closePopupBtn.addEventListener("click", () => {
+		closeOpenPopup();
 	});
 }
 
 addCardsToPage();
 profileEditButtonHandle();
 profileAddCardButtonHandle();
+popupCloseHandler();
