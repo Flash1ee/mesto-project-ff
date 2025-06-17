@@ -1,14 +1,10 @@
 import "../pages/index.css";
 import { initialCards } from "./cards";
-import { openPopup, closeOpenPopup } from "./modal";
+import { openPopup, closeOpenPopup, closePopup, popupOpenClass } from "./modal";
 import { newCard, deleteCard, likeCard } from "./components/card";
 
 // Попап
-const popupCloseSelector = ".popup__close";
-const closePopupBtn = document.querySelector(popupCloseSelector);
-const popup = document.querySelector(".popup_type_image");
-const popupImg = popup.querySelector(".popup__image");
-const popupCaption = popup.querySelector(".popup__caption");
+const popupCloseClass = "popup__close";
 
 // Профиль
 const profileTitleSelector = ".profile__title";
@@ -23,27 +19,23 @@ const cardForm = document.forms["new-place"];
 const cardList = document.querySelector(".places__list");
 const popupAddNewCard = document.querySelector(".popup_type_new-card");
 
-
-function handleImageClick(link, title, openPopupFunc) {
-	popupImg.src = link;
-	popupImg.alt = title;
-	popupCaption.textContent = title;
-
-	openPopupFunc(popup);
+function handleImageClick(link, title, imgElement, imgCaption) {
+	imgElement.src = link;
+	imgElement.alt = title;
+	imgCaption.textContent = title;
 }
 
 const config = {
 	rmFunc: deleteCard,
 	likeFunc: likeCard,
-	addImageFunc: handleImageClick,
+	fillImagePopup: handleImageClick,
 	openPopupFunc: openPopup,
 };
 
 // Добавление дефолтных карточек
 function addCardsToPage() {
 	initialCards.forEach((element) => {
-		const card = newCard(element.name, element.link, config);
-		cardList.append(card);
+		renderCard(element.name, element.link, config, "append");
 	});
 }
 
@@ -53,18 +45,24 @@ function handleNewCardFormSubmit(evt) {
 
 	const placeTitle = cardForm["place-name"].value;
 	const link = cardForm["link"].value;
-	cardList.prepend(newCard(placeTitle, link, config));
+
+	renderCard(placeTitle, link, config);
 
 	cardForm.reset();
 	closeOpenPopup();
 }
 
+function renderCard(title, link, config, method = "prepend") {
+	const card = newCard(title, link, config);
+	cardList[method](card);
+}
+
 // Редактирование профиля
 function profileEditButtonHandle() {
+	editProfileForm.addEventListener("submit", handleProfileFormSubmit);
+
 	profileEditButton.addEventListener("click", () => {
 		profileEditPreFill(editProfileForm);
-		editProfileForm.addEventListener("submit", handleProfileFormSubmit);
-
 		openPopup(popupProfileEdit);
 	});
 }
@@ -95,16 +93,25 @@ function handleProfileFormSubmit(evt) {
 
 // Добавление новой карточки
 function profileAddCardButtonHandle() {
+	cardForm.addEventListener("submit", handleNewCardFormSubmit);
+
 	profileAddButton.addEventListener("click", () => {
 		openPopup(popupAddNewCard);
-
-		cardForm.addEventListener("submit", handleNewCardFormSubmit);
 	});
 }
 
 function popupCloseHandler() {
-	closePopupBtn.addEventListener("click", () => {
-		closeOpenPopup();
+	const popups = document.querySelectorAll(".popup");
+	popups.forEach((popup) => {
+		popup.addEventListener("mousedown", (evt) => {
+			if (evt.target.classList.contains(popupCloseClass)) {
+				closePopup(popup);
+			}
+			// Закрытие попапа по клику на оверлей
+			if (evt.target.classList.contains(popupOpenClass)) {
+				closePopup(popup);
+			}
+		});
 	});
 }
 

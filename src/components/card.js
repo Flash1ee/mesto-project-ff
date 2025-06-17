@@ -1,3 +1,7 @@
+const addCardPopup = document.querySelector(".popup_type_image");
+const imgPopup = addCardPopup.querySelector(".popup__image");
+const popupCaption = addCardPopup.querySelector(".popup__caption");
+
 function newCard(title, link, config) {
 	const card = document
 		.querySelector("#card-template")
@@ -21,7 +25,8 @@ function newCard(title, link, config) {
 	});
 
 	cardImage.addEventListener("click", () => {
-		config.addImageFunc(link, title, config.openPopupFunc);
+		config.fillImagePopup(link, title, imgPopup, popupCaption);
+		config.openPopupFunc(addCardPopup);
 	});
 
 	return card;

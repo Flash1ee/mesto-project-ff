@@ -1,13 +1,10 @@
 const escapeKey = "Escape";
 const popupOpenClass = "popup_is-opened";
+const popupOpenSelector = "." + popupOpenClass
 const popupCloseClass = "popup_is-animated";
 
-function closePopupOverlay(evt) {
-	return closeOpenPopup(evt.target)
-}
-
 function closeOpenPopup() {
-	const popupOpen = document.querySelector("." + popupOpenClass);
+	const popupOpen = document.querySelector(popupOpenSelector);
 	if (popupOpen === null) {
 		return;
 	}
@@ -18,7 +15,8 @@ function closePopup(element) {
 	if (element.classList.contains("popup")) {
 		element.classList.remove(popupOpenClass, popupCloseClass);
 	}
-	closeHandlerRemove();
+
+	document.removeEventListener("keydown", closePopupByEscape);
 }
 
 function openPopup(element) {
@@ -26,7 +24,8 @@ function openPopup(element) {
 	setTimeout(() => {
 		element.classList.add(popupOpenClass);
 	}, 1);
-	closeHandlerAdd();
+
+	document.addEventListener("keydown", closePopupByEscape);
 }
 
 // Обработчик закрытия попапа через Escape
@@ -36,17 +35,4 @@ function closePopupByEscape(evt) {
 	}
 }
 
-function closeHandlerAdd() {
-	document.addEventListener("keydown", closePopupByEscape);
-	document.addEventListener("click", closePopupOverlay);
-}
-
-function closeHandlerRemove() {
-	document.removeEventListener("click", closePopupOverlay);
-	document.removeEventListener("keydown", closePopupByEscape);
-}
-
-export {
-	openPopup,
-	closeOpenPopup,
-};
+export { openPopup, closeOpenPopup, closePopup, popupOpenClass };
