@@ -1,7 +1,3 @@
-const addCardPopup = document.querySelector(".popup_type_image");
-const imgPopup = addCardPopup.querySelector(".popup__image");
-const popupCaption = addCardPopup.querySelector(".popup__caption");
-
 function newCard(title, link, config) {
 	const card = document
 		.querySelector("#card-template")
@@ -13,8 +9,9 @@ function newCard(title, link, config) {
 	cardImage.alt = title;
 	card.querySelector(".card__title").textContent = title;
 
-	const rmCardButton = card.querySelector(".card__delete-button");
+	config.handleImageClick(link, title, cardImage);
 
+	const rmCardButton = card.querySelector(".card__delete-button");
 	rmCardButton.addEventListener("click", () => {
 		config.rmFunc(card);
 	});
@@ -22,11 +19,6 @@ function newCard(title, link, config) {
 	const likeButton = card.querySelector(".card__like-button");
 	likeButton.addEventListener("click", () => {
 		config.likeFunc(card);
-	});
-
-	cardImage.addEventListener("click", () => {
-		config.fillImagePopup(link, title, imgPopup, popupCaption);
-		config.openPopupFunc(addCardPopup);
 	});
 
 	return card;
@@ -37,7 +29,7 @@ function deleteCard(card) {
 }
 
 function likeCard(card) {
-	let likeImg = card.querySelector(".card__like-button");
+	const likeImg = card.querySelector(".card__like-button");
 	likeImg.classList.toggle("card__like-button_is-active");
 }
 

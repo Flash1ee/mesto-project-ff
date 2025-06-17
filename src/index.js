@@ -5,10 +5,17 @@ import { newCard, deleteCard, likeCard } from "./components/card";
 
 // Попап
 const popupCloseClass = "popup__close";
+const addCardPopup = document.querySelector(".popup_type_image");
+const imagePopup = addCardPopup.querySelector(".popup__image");
+const popupCaption = addCardPopup.querySelector(".popup__caption");
 
 // Профиль
 const profileTitleSelector = ".profile__title";
+const profileName = document.querySelector(profileTitleSelector);
+
 const profileDescriptionSelector = ".profile__description";
+const profileHobby = document.querySelector(profileDescriptionSelector);
+
 const editProfileForm = document.forms["edit-profile"];
 const profileAddButton = document.querySelector(".profile__add-button");
 const profileEditButton = document.querySelector(".profile__edit-button");
@@ -19,17 +26,19 @@ const cardForm = document.forms["new-place"];
 const cardList = document.querySelector(".places__list");
 const popupAddNewCard = document.querySelector(".popup_type_new-card");
 
-function handleImageClick(link, title, imgElement, imgCaption) {
-	imgElement.src = link;
-	imgElement.alt = title;
-	imgCaption.textContent = title;
+function handleImageClick(link, title, cardPopup) {
+	cardPopup.addEventListener("click", () => {
+		imagePopup.src = link;
+		imagePopup.alt = title;
+		popupCaption.textContent = title;
+		openPopup(addCardPopup);
+	});
 }
 
 const config = {
 	rmFunc: deleteCard,
 	likeFunc: likeCard,
-	fillImagePopup: handleImageClick,
-	openPopupFunc: openPopup,
+	handleImageClick: handleImageClick,
 };
 
 // Добавление дефолтных карточек
@@ -68,13 +77,8 @@ function profileEditButtonHandle() {
 }
 
 function profileEditPreFill(editForm) {
-	const name = document.querySelector(profileTitleSelector).textContent;
-	const hobby = document.querySelector(
-		profileDescriptionSelector
-	).textContent;
-
-	editForm.name.value = name;
-	editForm.description.value = hobby;
+	editForm.name.value = profileName.textContent;
+	editForm.description.value = profileHobby.textContent;
 }
 
 // Обработчик формы редактирования профиля
@@ -84,9 +88,8 @@ function handleProfileFormSubmit(evt) {
 	const name = editProfileForm.name.value;
 	const description = editProfileForm.description.value;
 
-	document.querySelector(profileTitleSelector).textContent = name;
-	document.querySelector(profileDescriptionSelector).textContent =
-		description;
+	profileName.textContent = name;
+	profileHobby.textContent = description;
 
 	closeOpenPopup();
 }

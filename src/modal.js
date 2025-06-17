@@ -1,6 +1,6 @@
 const escapeKey = "Escape";
 const popupOpenClass = "popup_is-opened";
-const popupOpenSelector = "." + popupOpenClass
+const popupOpenSelector = "." + popupOpenClass;
 const popupCloseClass = "popup_is-animated";
 
 function closeOpenPopup() {
