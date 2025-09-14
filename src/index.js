@@ -2,6 +2,7 @@ import "../pages/index.css";
 import { initialCards } from "./cards";
 import { openPopup, closeOpenPopup, closePopup, popupOpenClass } from "./modal";
 import { newCard, deleteCard, likeCard } from "./components/card";
+import { enableValidation, clearValidation } from "./validation";
 
 // Попап
 const popupCloseClass = "popup__close";
@@ -71,6 +72,7 @@ function profileEditButtonHandle() {
 	editProfileForm.addEventListener("submit", handleProfileFormSubmit);
 
 	profileEditButton.addEventListener("click", () => {
+		clearValidation(editProfileForm, validationConfig);
 		profileEditPreFill(editProfileForm);
 		openPopup(popupProfileEdit);
 	});
@@ -99,6 +101,7 @@ function profileAddCardButtonHandle() {
 	cardForm.addEventListener("submit", handleNewCardFormSubmit);
 
 	profileAddButton.addEventListener("click", () => {
+		clearValidation(cardForm, validationConfig);
 		openPopup(popupAddNewCard);
 	});
 }
@@ -122,3 +125,13 @@ addCardsToPage();
 profileEditButtonHandle();
 profileAddCardButtonHandle();
 popupCloseHandler();
+
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+};
+
+enableValidation(validationConfig); 
