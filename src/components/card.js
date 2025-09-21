@@ -1,6 +1,6 @@
 import { apiConfig, removeCard, addLike, deleteLike } from "../api";
 
-function newCard(title, link, id, likesCount, currentUserID, likes, config) {
+function newCard(title, link, id, likesCount, currentUserID, likes, ownerId, config) {
 	const card = document
 		.querySelector("#card-template")
 		.content.querySelector(".card")
@@ -18,6 +18,12 @@ function newCard(title, link, id, likesCount, currentUserID, likes, config) {
 	if (isLiked) {
 		const likeButton = card.querySelector(".card__like-button");
 		likeButton.classList.add("card__like-button_is-active");
+	}
+
+	// Скрыть кнопку удаления, если карточка не принадлежит пользователю
+	if (ownerId !== currentUserID) {
+		const rmCardButton = card.querySelector(".card__delete-button");
+		rmCardButton.style.display = 'none';
 	}
 
 	config.handleImageClick(link, title, cardImage);

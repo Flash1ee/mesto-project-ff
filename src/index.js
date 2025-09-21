@@ -54,7 +54,7 @@ const config = {
 // Добавление дефолтных карточек
 async function addCardsToPage(cards, currentUserID) {
 	cards.forEach((element) => {
-		renderCard(element.name, element.link, element._id, element.likes.length, currentUserID, element.likes, config, "append");
+		renderCard(element.name, element.link, element._id, element.likes.length, currentUserID, element.likes, element.owner._id, config, "append");
 	});
 }
 
@@ -67,7 +67,7 @@ async function handleNewCardFormSubmit(evt) {
 
 	try {
 		const newCardData = await addCard(apiConfig, placeTitle, link);
-		renderCard(newCardData.name, newCardData.link, newCardData._id, newCardData.likes.length, currentUserID, newCardData.likes, config);
+		renderCard(newCardData.name, newCardData.link, newCardData._id, newCardData.likes.length, currentUserID, newCardData.likes, currentUserID, config);
 		cardForm.reset();
 		closeOpenPopup();
 	} catch (error) {
@@ -75,8 +75,8 @@ async function handleNewCardFormSubmit(evt) {
 	}
 }
 
-function renderCard(title, link, id, likesCount, currentUserID, likes, config, method = "prepend") {
-	const card = newCard(title, link, id, likesCount, currentUserID, likes, config);
+function renderCard(title, link, id, likesCount, currentUserID, likes, ownerId, config, method = "prepend") {
+	const card = newCard(title, link, id, likesCount, currentUserID, likes, ownerId, config);
 	cardList[method](card);
 }
 
@@ -210,6 +210,7 @@ const validationConfig = {
   submitButtonSelector: '.popup__button',
   inputErrorClass: 'popup__input_type_error',
   errorClass: 'popup__error_visible',
+  errorElementSelector: (inputElement) => `.${inputElement.id}-error`,
 };
 
 enableValidation(validationConfig); 
