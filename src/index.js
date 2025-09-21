@@ -1,10 +1,8 @@
 import "../pages/index.css";
-import { initialCards } from "./cards";
 import { openPopup, closeOpenPopup, closePopup, popupOpenClass } from "./modal";
 import { newCard, deleteCard, likeCard } from "./components/card";
 import { enableValidation, clearValidation } from "./validation";
-import { apiConfig, editProfileData, getCards, getProfileData } from "./api";
-
+import { apiConfig, editProfileData, getCards, getProfileData, addCard } from "./api";
 // Попап
 const popupCloseClass = "popup__close";
 const addCardPopup = document.querySelector(".popup_type_image");
@@ -40,35 +38,41 @@ function handleImageClick(link, title, cardPopup) {
 	});
 }
 
+let currentUserID = null;
+
 const config = {
 	rmFunc: deleteCard,
 	likeFunc: likeCard,
 	handleImageClick: handleImageClick,
+	apiConfig: apiConfig,
 };
 
 // Добавление дефолтных карточек
-async function addCardsToPage() {
-	const cards = await getCards(apiConfig);
+async function addCardsToPage(cards, currentUserID) {
 	cards.forEach((element) => {
-		renderCard(element.name, element.link, config, "append");
+		renderCard(element.name, element.link, element._id, element.likes.length, currentUserID, element.likes, config, "append");
 	});
 }
 
 // Обработчик формы добавления карточки
-function handleNewCardFormSubmit(evt) {
+async function handleNewCardFormSubmit(evt) {
 	evt.preventDefault();
 
 	const placeTitle = cardForm["place-name"].value;
 	const link = cardForm["link"].value;
 
-	renderCard(placeTitle, link, config);
-
-	cardForm.reset();
-	closeOpenPopup();
+	try {
+		const newCardData = await addCard(apiConfig, placeTitle, link);
+		renderCard(newCardData.name, newCardData.link, newCardData._id, newCardData.likes.length, currentUserID, newCardData.likes, config);
+		cardForm.reset();
+		closeOpenPopup();
+	} catch (error) {
+		console.error("Ошибка при добавлении карточки:", error);
+	}
 }
 
-function renderCard(title, link, config, method = "prepend") {
-	const card = newCard(title, link, config);
+function renderCard(title, link, id, likesCount, currentUserID, likes, config, method = "prepend") {
+	const card = newCard(title, link, id, likesCount, currentUserID, likes, config);
 	cardList[method](card);
 }
 
@@ -135,7 +139,17 @@ function popupCloseHandler() {
 	});
 }
 
-addCardsToPage();
+// Загрузка данных пользователя и карточек
+Promise.all([getProfileData(apiConfig), getCards(apiConfig)])
+  .then(([userData, cards]) => {
+ currentUserID = userData._id;
+ fillProfilePreviewWithData(userData);
+ addCardsToPage(cards, currentUserID);
+  })
+  .catch((error) => {
+	console.error("Ошибка при загрузке данных:", error);
+  });
+
 profileEditButtonHandle();
 profileAddCardButtonHandle();
 popupCloseHandler();
@@ -150,17 +164,8 @@ const validationConfig = {
 
 enableValidation(validationConfig); 
 
-getProfileData(apiConfig);
-
-const fillProfilePreview = async function(config) {
-	try {
-		const userData = await getProfileData(config);
-		profileName.textContent = userData.name || "";
-		profileHobby.textContent = userData.about || "";
-		profileImage.style.backgroundImage = `url('${userData.avatar}')`;
-	} catch (error) {
-		console.error("Ошибка получения профиля:", error);
-	}
+const fillProfilePreviewWithData = function(userData) {
+	profileName.textContent = userData.name || "";
+	profileHobby.textContent = userData.about || "";
+	profileImage.style.backgroundImage = `url('${userData.avatar}')`;
 }
-
-fillProfilePreview(apiConfig);
