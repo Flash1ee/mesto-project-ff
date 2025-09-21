@@ -3,6 +3,7 @@ import { initialCards } from "./cards";
 import { openPopup, closeOpenPopup, closePopup, popupOpenClass } from "./modal";
 import { newCard, deleteCard, likeCard } from "./components/card";
 import { enableValidation, clearValidation } from "./validation";
+import { apiConfig, editProfileData, getCards, getProfileData } from "./api";
 
 // Попап
 const popupCloseClass = "popup__close";
@@ -16,6 +17,9 @@ const profileName = document.querySelector(profileTitleSelector);
 
 const profileDescriptionSelector = ".profile__description";
 const profileHobby = document.querySelector(profileDescriptionSelector);
+
+const profileImageSelector = ".profile__image";
+const profileImage = document.querySelector(profileImageSelector);
 
 const editProfileForm = document.forms["edit-profile"];
 const profileAddButton = document.querySelector(".profile__add-button");
@@ -43,8 +47,9 @@ const config = {
 };
 
 // Добавление дефолтных карточек
-function addCardsToPage() {
-	initialCards.forEach((element) => {
+async function addCardsToPage() {
+	const cards = await getCards(apiConfig);
+	cards.forEach((element) => {
 		renderCard(element.name, element.link, config, "append");
 	});
 }
@@ -89,11 +94,20 @@ function handleProfileFormSubmit(evt) {
 
 	const name = editProfileForm.name.value;
 	const description = editProfileForm.description.value;
-
-	profileName.textContent = name;
-	profileHobby.textContent = description;
-
+	
+	updateProfile(name, description);
 	closeOpenPopup();
+}
+
+async function updateProfile(newName, newDescription) {
+	try {
+		const res = await editProfileData(apiConfig, newName, newDescription)
+
+		profileName.textContent = res.name;
+		profileHobby.textContent = res.about;
+	}catch (error) {
+		console.error("Ошибка обновления профиля:", error);
+	}
 }
 
 // Добавление новой карточки
@@ -135,3 +149,18 @@ const validationConfig = {
 };
 
 enableValidation(validationConfig); 
+
+getProfileData(apiConfig);
+
+const fillProfilePreview = async function(config) {
+	try {
+		const userData = await getProfileData(config);
+		profileName.textContent = userData.name || "";
+		profileHobby.textContent = userData.about || "";
+		profileImage.style.backgroundImage = `url('${userData.avatar}')`;
+	} catch (error) {
+		console.error("Ошибка получения профиля:", error);
+	}
+}
+
+fillProfilePreview(apiConfig);
