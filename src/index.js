@@ -2,7 +2,7 @@ import "../pages/index.css";
 import { openPopup, closeOpenPopup, closePopup, popupOpenClass } from "./modal";
 import { newCard, deleteCard, likeCard } from "./components/card";
 import { enableValidation, clearValidation } from "./validation";
-import { apiConfig, editProfileData, getCards, getProfileData, addCard } from "./api";
+import { apiConfig, editProfileData, getCards, getProfileData, addCard, updateAvatar } from "./api";
 // Попап
 const popupCloseClass = "popup__close";
 const addCardPopup = document.querySelector(".popup_type_image");
@@ -23,6 +23,10 @@ const editProfileForm = document.forms["edit-profile"];
 const profileAddButton = document.querySelector(".profile__add-button");
 const profileEditButton = document.querySelector(".profile__edit-button");
 const popupProfileEdit = document.querySelector(".popup_type_edit");
+
+// Аватар
+const editAvatarForm = document.forms["edit-avatar"];
+const popupEditAvatar = document.querySelector(".popup_type_avatar");
 
 // Карточка
 const cardForm = document.forms["new-place"];
@@ -93,14 +97,26 @@ function profileEditPreFill(editForm) {
 }
 
 // Обработчик формы редактирования профиля
-function handleProfileFormSubmit(evt) {
+async function handleProfileFormSubmit(evt) {
 	evt.preventDefault();
 
 	const name = editProfileForm.name.value;
 	const description = editProfileForm.description.value;
+	const submitButton = editProfileForm.querySelector('.popup__button');
+	const originalText = submitButton.textContent;
 	
-	updateProfile(name, description);
-	closeOpenPopup();
+	submitButton.textContent = 'Сохранение...';
+	submitButton.disabled = true;
+	
+	try {
+		await updateProfile(name, description);
+	} catch (error) {
+		console.error("Ошибка обновления профиля:", error);
+	} finally {
+		submitButton.textContent = originalText;
+		submitButton.disabled = false;
+		closeOpenPopup();
+	}
 }
 
 async function updateProfile(newName, newDescription) {
@@ -139,6 +155,37 @@ function popupCloseHandler() {
 	});
 }
 
+// Обработчик формы редактирования аватара
+async function handleAvatarFormSubmit(evt) {
+	evt.preventDefault();
+
+	const avatarLink = editAvatarForm["avatar-link"].value;
+	const submitButton = editAvatarForm.querySelector('.popup__button');
+	const originalText = submitButton.textContent;
+	
+	submitButton.textContent = 'Сохранение...';
+	submitButton.disabled = true;
+	
+	try {
+		const res = await updateAvatar(apiConfig, avatarLink);
+		profileImage.style.backgroundImage = `url('${res.avatar}')`;
+	} catch (error) {
+		console.error("Ошибка обновления аватара:", error);
+	} finally {
+		submitButton.textContent = originalText;
+		submitButton.disabled = false;
+		closeOpenPopup();
+	}
+}
+
+// Обработчик открытия формы редактирования аватара
+function profileAvatarEditHandle() {
+	profileImage.addEventListener("click", () => {
+		clearValidation(editAvatarForm, validationConfig);
+		openPopup(popupEditAvatar);
+	});
+}
+
 // Загрузка данных пользователя и карточек
 Promise.all([getProfileData(apiConfig), getCards(apiConfig)])
   .then(([userData, cards]) => {
@@ -152,14 +199,17 @@ Promise.all([getProfileData(apiConfig), getCards(apiConfig)])
 
 profileEditButtonHandle();
 profileAddCardButtonHandle();
+profileAvatarEditHandle();
 popupCloseHandler();
+
+editAvatarForm.addEventListener("submit", handleAvatarFormSubmit);
 
 const validationConfig = {
   formSelector: '.popup__form',
   inputSelector: '.popup__input',
   submitButtonSelector: '.popup__button',
   inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__error_visible'
+  errorClass: 'popup__error_visible',
 };
 
 enableValidation(validationConfig); 

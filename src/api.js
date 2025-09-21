@@ -153,3 +153,26 @@ export function deleteLike(config, cardId) {
 			console.log("Error on delete like: ", err);
 		});
 }
+
+export function updateAvatar(config, avatar) {
+	const request = new Request(config.baseUrl + "/users/me/avatar");
+	const requestData = {
+		method: "PATCH",
+		headers: config.headers,
+		body: JSON.stringify({
+			avatar: avatar,
+		}),
+	};
+
+	return fetch(request, requestData)
+		.then((res) => {
+			if (res.ok) {
+				return res.json();
+			}
+			return Promise.reject(`Error on update avatar: ${res.status}`);
+		})
+		.then((result) => result)
+		.catch((err) => {
+			console.log("Error on update avatar: ", err);
+		});
+}
