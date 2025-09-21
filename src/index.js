@@ -1,6 +1,6 @@
 import "../pages/index.css";
 import { openPopup, closeOpenPopup, closePopup, popupOpenClass } from "./modal";
-import { newCard, deleteCard, likeCard } from "./components/card";
+import { createNewCard, deleteCard, likeCard } from "./components/card";
 import { enableValidation, clearValidation } from "./validation";
 import {
     apiConfig,
@@ -120,7 +120,7 @@ function renderCard(
     config,
     method = "prepend",
 ) {
-    const card = newCard(
+    const card = createNewCard(
         title,
         link,
         id,

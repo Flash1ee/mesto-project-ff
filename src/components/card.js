@@ -1,6 +1,6 @@
 import { apiConfig, removeCard, addLike, deleteLike } from "../api";
 
-function newCard(
+function createNewCard(
     title,
     link,
     id,
@@ -80,4 +80,4 @@ async function likeCard(card, cardId, updateLikesCount, apiConfig) {
     }
 }
 
-export { newCard, deleteCard, likeCard };
+export { createNewCard, deleteCard, likeCard };

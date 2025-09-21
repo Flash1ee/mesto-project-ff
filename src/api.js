@@ -1,3 +1,5 @@
+import { checkResponse } from "./utils/utils";
+
 export const apiConfig = {
 	baseUrl: "https://nomoreparties.co/v1/cohort-mag-3",
 	headers: {
@@ -6,12 +8,6 @@ export const apiConfig = {
 	},
 };
 
-const checkResponse = (res) => {
-	if (res.ok) {
-		return res.json();
-	}
-	return Promise.reject(res);
-};
 
 export function getProfileData(config) {
     const request = new Request(config.baseUrl + "/users/me");
